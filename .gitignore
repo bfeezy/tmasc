@@ -1,0 +1,9 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+inst/doc
+data-raw/dreamjournal/djournal_index.rda
+data-raw/dreamjournal/dreamjournal.rda
+data-raw/erowid/erowid_index.rda
+data-raw/erowid/sitelist.rda

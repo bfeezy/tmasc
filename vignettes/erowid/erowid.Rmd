@@ -1,0 +1,125 @@
+---
+title: "Erowid Reports"
+author: "Matti Vuorre"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, message = F}
+library(tidyverse)
+library(stringr)
+library(knitr)
+library(tmasc)
+theme_set(theme_bw() + theme(panel.grid = element_blank()))
+```
+
+## About the Experience Vaults
+
+>"The Erowid Experience Vaults are an attempt to catalog the wide variety of experiences people have with psychoactive plants and chemicals as well as experiences with endogenous (non-drug) mystical experiences, drug testing, police interactions, deep experiences of connection to music, etc." ([Erowid Experience Vault](https://www.erowid.org/experiences/exp_about.cgi))
+
+# tmasc::erowid
+
+The `erowid` data set in **tmasc** contains written reports of some 24 thousand of these experiences, in a tidy [`tibble`](https://cran.r-project.org/web/packages/tibble/) ready for text mining, visual, and statistical analyses in R (or other software.) 
+
+```{r}
+library(tmasc)
+data(erowid)
+head(erowid)
+```
+
+One of the columns in the data frame is actually a list of data frames containing more detailed information about the substance(s) in each report, and can be used for more complex analyses. For the example here, we will drop this column for clarity.
+
+```{r}
+erowid <- select(erowid, -dosechart)
+```
+
+Unfortunately 70 reports failed to scrape but hopefully these will be included later.
+
+```{r}
+erowid <- filter(erowid, !is.na(text))
+```
+
+# Overview of the data
+
+## Year
+
+Many, but not all, of the reports contain a timestamp of the year of the experience. Here are reports from between 1980 and 2016
+
+```{r}
+erowid %>%
+    ggplot(aes(x=year)) +
+    geom_histogram(binwidth = 1, col = "white") +
+    scale_x_continuous(breaks = seq(1960, 2010, 10)) +
+    scale_y_continuous(expand = c(0,0))
+```
+
+## Gender and age
+
+```{r}
+erowid %>%
+    mutate(age = as.integer(age)) %>%
+    group_by(gender, age) %>%
+    ggplot(aes(x=age)) +
+    geom_histogram(binwidth = 2, col="white") +
+    scale_y_continuous(expand = c(0, 0)) +
+    facet_wrap("gender")
+```
+
+## Substances
+
+There are `r length(unique(erowid$substance))` substances (or combinations). 
+
+```{r}
+erowid %>% 
+    filter(!str_detect(substance, "&")) %>%
+    group_by(substance) %>%
+    count() %>%
+    filter(n > 100) %>%
+    ggplot(aes(x=reorder(substance, n), y = n)) +
+    geom_segment(aes(yend=0, xend = reorder(substance, n))) +
+    geom_point() +
+    coord_flip() +
+    scale_y_continuous(limits = c(0, 800), expand = c(0, 0)) +
+    labs(title = "Counts of substances", x = "", y = "",
+         subtitle = "Substances with fewer than 100 reports excluded")
+```
+
+Let's also display a sample of the combinations:
+
+```{r}
+erowid %>% 
+    filter(str_detect(substance, "&")) %>%
+    group_by(substance) %>%
+    count() %>%
+    filter(n > 15) %>%
+    ggplot(aes(x=reorder(substance, n), y = n)) +
+    geom_segment(aes(yend=0, xend = reorder(substance, n))) +
+    geom_point() +
+    coord_flip() +
+    scale_y_continuous(limits = c(0, 250), expand = c(0, 0)) +
+    labs(title = "Counts of substance combinations", x = "", y = "",
+         subtitle = "Combinations with fewer than 15 reports excluded")
+```
+
+# Reports
+
+```{r}
+set.seed(9)
+erowid %>%
+    filter(rating == "Very Highly Recommended", substance == "DMT") %>%
+    sample_n(1) %>%
+    select(text) %>% 
+    as.character() %>% 
+    gsub(".*sense of strength going in.|The question of intentionality.*", 
+         "", .) %>% 
+    cat()
+    
+```
+
+# Further Reading
+
+<http://chemicalyouth.org/visualising-erowid/>

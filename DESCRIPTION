@@ -1,0 +1,19 @@
+Package: tmasc
+Type: Package
+Title: Text Mining Altered States of Consciousness
+Version: 0.2.2
+Authors@R: person("Matti", "Vuorre", email = "mv2521@columbia.edu",
+                  role = c("aut", "cre"))
+Maintainer: Matti Vuorre <mv2521@columbia.edu>
+Description: Tidy data sets of reports of altered states of consciousness for text mining analyses.
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: true
+Depends:
+    R (>= 3.1.0)
+RoxygenNote: 5.0.1
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr
+URL: https://github.com/mvuorre/tmasc
+BugReports: https://github.com/mvuorre/tmasc/issues
