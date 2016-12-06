@@ -1,0 +1,86 @@
+---
+title: "Dreamjournal Dream Reports"
+author: "Matti Vuorre"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = F}
+library(tidyverse)
+library(stringr)
+library(knitr)
+library(tmasc)
+opts_chunk$set(warning = F)
+theme_set(theme_bw() + theme(panel.grid = element_blank()))
+```
+
+`dreamjournal` is a data set of written dream reports.
+
+# What is Dream Journal?
+
+>"[Dream Journal](http://www.dreamjournal.net/) is a free service that allows you to create and customize your very own online dream journal. You may update your dream journal as often as you'd like. Your journal may be kept private for your own viewing, or be made public. We only display the information you want displayed. It's free, it's fun, and it's easy to use!" 
+
+# tmasc::dreamjournal
+
+The `dreamjournal` data set in **tmasc** contains written reports of `r nrow(dreamjournal)` dreams, in a tidy [`tibble`](https://cran.r-project.org/web/packages/tibble/) ready for text mining, visual, and statistical analyses in R (or other software.) 
+
+```{r}
+library(tmasc)
+data(dreamjournal)
+head(dreamjournal)
+```
+
+`dreamjournal` has "metadata" associated with each dream, including
+
+* `date`: When the dream occurred
+* `rating`: Rating of the dream report (0-100)
+* `cohesion`: Rating of the "cohesion" the dream report (0-100)
+* `lucidity`: Rating of the lucidity the dream report (0-100)
+* `views`: How many time the dream has been viewed on [Dream Journal](http://www.dreamjournal.net/)
+* `text`: The actual text of the report.
+
+In addition to these, many dreams are logged with tags and keywords, listed as `themes`, `settings`, `characters`, `emotions`, `activities`, and `keywords`. Each of these columns is a **list-column** of character vectors, because users could report multiple tags in each category.
+
+# Overview of the data
+
+## Year
+
+Many, but not all, of the reports contain a timestamp of the year of the experience. Some of these timestamps are also wildly inaccurate (or people have been time-traveling to log their dreams.)
+
+```{r}
+dreamjournal %>%
+    ggplot(aes(x=date)) +
+    geom_histogram(bins=200)
+```
+
+# Dreams
+
+Here's a sampling of a few short dream reports:
+
+```{r, comment=NA}
+dreamjournal %>%
+    filter(rating == 100) %>%
+    mutate(n = nchar(text)) %>%
+    filter(between(n, 140, 160)) %>%
+    arrange(n) %>%
+    select(dream, views, text) %>%
+    kable()
+    
+```
+
+Of course, most dreams are much longer:
+
+```{r}
+dreamjournal %>%
+    mutate(text_length = nchar(text)) %>%
+    ggplot(aes(x=text_length)) +
+    geom_histogram(binwidth=50) +
+    coord_cartesian(xlim = c(0, 20000))
+```
+
+# Further Reading
+

@@ -9,13 +9,16 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, message = F}
+```{r, include = F}
 library(tidyverse)
 library(stringr)
 library(knitr)
 library(tmasc)
+opts_chunk$set(warning = F)
 theme_set(theme_bw() + theme(panel.grid = element_blank()))
 ```
+
+`erowid` is a data set of written reports of psychedelic experiences, from [Erowid.org](https://erowid.org/)'s Experience Vaults.
 
 ## About the Experience Vaults
 
@@ -31,23 +34,18 @@ data(erowid)
 head(erowid)
 ```
 
-One of the columns in the data frame is actually a list of data frames containing more detailed information about the substance(s) in each report, and can be used for more complex analyses. For the example here, we will drop this column for clarity.
+One of the columns in the data frame is a list-column of data frames containing more detailed information about the substance(s) in each report, and can be used for more complex analyses. For the example here, we will drop this column for clarity. We'll also drop all the rows (70) where no report text exists.
 
 ```{r}
-erowid <- select(erowid, -dosechart)
-```
-
-Unfortunately 70 reports failed to scrape but hopefully these will be included later.
-
-```{r}
-erowid <- filter(erowid, !is.na(text))
+erowid <- select(erowid, -dosechart) %>%
+    filter(!is.na(text))
 ```
 
 # Overview of the data
 
 ## Year
 
-Many, but not all, of the reports contain a timestamp of the year of the experience. Here are reports from between 1980 and 2016
+Many, but not all, of the reports contain a timestamp of the year of the experience.
 
 ```{r}
 erowid %>%
@@ -61,10 +59,9 @@ erowid %>%
 
 ```{r}
 erowid %>%
-    mutate(age = as.integer(age)) %>%
     group_by(gender, age) %>%
     ggplot(aes(x=age)) +
-    geom_histogram(binwidth = 2, col="white") +
+    geom_histogram(binwidth = 1, col="white", fill="black") +
     scale_y_continuous(expand = c(0, 0)) +
     facet_wrap("gender")
 ```
@@ -107,16 +104,17 @@ erowid %>%
 
 # Reports
 
-```{r}
-set.seed(9)
+For example, let's show the shortest report whose rating is "Highly Recommended":
+
+```{r, comment=NA}
 erowid %>%
-    filter(rating == "Very Highly Recommended", substance == "DMT") %>%
-    sample_n(1) %>%
-    select(text) %>% 
-    as.character() %>% 
-    gsub(".*sense of strength going in.|The question of intentionality.*", 
-         "", .) %>% 
-    cat()
+    filter(rating == "Highly Recommended") %>%
+    mutate(n = nchar(text)) %>%
+    arrange(n) %>% 
+    .[1,] %>%
+    select(text) %>%
+    as.character() %>%
+    cat() 
     
 ```
 

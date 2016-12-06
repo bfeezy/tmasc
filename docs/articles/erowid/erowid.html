@@ -41,17 +41,13 @@
       <h1>Erowid Reports</h1>
                         <h4 class="author">Matti Vuorre</h4>
             
-            <h4 class="date">2016-12-01</h4>
+            <h4 class="date">2016-12-06</h4>
           </div>
 
     
     
 <div class="contents">
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tidyverse)
-<span class="kw">library</span>(stringr)
-<span class="kw">library</span>(knitr)
-<span class="kw">library</span>(tmasc)
-<span class="kw">theme_set</span>(<span class="kw">theme_bw</span>() +<span class="st"> </span><span class="kw">theme</span>(<span class="dt">panel.grid =</span> <span class="kw">element_blank</span>()))</code></pre></div>
+<p><code>erowid</code> is a data set of written reports of psychedelic experiences, from <a href="https://erowid.org/">Erowid.org</a>&rsquo;s Experience Vaults.</p>
 <div id="about-the-experience-vaults" class="section level2">
 <h2 class="hasAnchor"><html><body><a href="#about-the-experience-vaults" class="anchor"> </a></body></html>About the Experience Vaults</h2>
 <blockquote>
@@ -76,35 +72,31 @@
 ## # ... with 8 more variables: year &lt;int&gt;, published &lt;date&gt;, rating &lt;chr&gt;,
 ## #   views &lt;int&gt;, substance &lt;chr&gt;, text &lt;chr&gt;, erowid_warning &lt;lgl&gt;,
 ## #   dosechart &lt;list&gt;</code></pre>
-<p>One of the columns in the data frame is actually a list of data frames containing more detailed information about the substance(s) in each report, and can be used for more complex analyses. For the example here, we will drop this column for clarity.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">erowid &lt;-<span class="st"> </span><span class="kw">select</span>(erowid, -dosechart)</code></pre></div>
-<p>Unfortunately 70 reports failed to scrape but hopefully these will be included later.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">erowid &lt;-<span class="st"> </span><span class="kw">filter</span>(erowid, !<span class="kw">is.na</span>(text))</code></pre></div>
+<p>One of the columns in the data frame is a list-column of data frames containing more detailed information about the substance(s) in each report, and can be used for more complex analyses. For the example here, we will drop this column for clarity. We&rsquo;ll also drop all the rows (70) where no report text exists.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">erowid &lt;-<span class="st"> </span><span class="kw">select</span>(erowid, -dosechart) %&gt;%
+<span class="st">    </span><span class="kw">filter</span>(!<span class="kw">is.na</span>(text))</code></pre></div>
 </div>
 <div id="overview-of-the-data" class="section level1">
 <h1 class="hasAnchor"><html><body><a href="#overview-of-the-data" class="anchor"> </a></body></html>Overview of the data</h1>
 <div id="year" class="section level2">
 <h2 class="hasAnchor"><html><body><a href="#year" class="anchor"> </a></body></html>Year</h2>
-<p>Many, but not all, of the reports contain a timestamp of the year of the experience. Here are reports from between 1980 and 2016</p>
+<p>Many, but not all, of the reports contain a timestamp of the year of the experience.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">erowid %&gt;%
 <span class="st">    </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x=</span>year)) +
 <span class="st">    </span><span class="kw">geom_histogram</span>(<span class="dt">binwidth =</span> <span class="dv">1</span>, <span class="dt">col =</span> <span class="st">"white"</span>) +
 <span class="st">    </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="dv">1960</span>, <span class="dv">2010</span>, <span class="dv">10</span>)) +
 <span class="st">    </span><span class="kw">scale_y_continuous</span>(<span class="dt">expand =</span> <span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>))</code></pre></div>
-<pre><code>## Warning: Removed 600 rows containing non-finite values (stat_bin).</code></pre>
-<p><img src="erowid_files/figure-html/unnamed-chunk-5-1.png" width="672"></p>
+<p><img src="erowid_files/figure-html/unnamed-chunk-4-1.png" width="672"></p>
 </div>
 <div id="gender-and-age" class="section level2">
 <h2 class="hasAnchor"><html><body><a href="#gender-and-age" class="anchor"> </a></body></html>Gender and age</h2>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">erowid %&gt;%
-<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">age =</span> <span class="kw">as.integer</span>(age)) %&gt;%
 <span class="st">    </span><span class="kw">group_by</span>(gender, age) %&gt;%
 <span class="st">    </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x=</span>age)) +
-<span class="st">    </span><span class="kw">geom_histogram</span>(<span class="dt">binwidth =</span> <span class="dv">2</span>, <span class="dt">col=</span><span class="st">"white"</span>) +
+<span class="st">    </span><span class="kw">geom_histogram</span>(<span class="dt">binwidth =</span> <span class="dv">1</span>, <span class="dt">col=</span><span class="st">"white"</span>, <span class="dt">fill=</span><span class="st">"black"</span>) +
 <span class="st">    </span><span class="kw">scale_y_continuous</span>(<span class="dt">expand =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)) +
 <span class="st">    </span><span class="kw">facet_wrap</span>(<span class="st">"gender"</span>)</code></pre></div>
-<pre><code>## Warning: Removed 20387 rows containing non-finite values (stat_bin).</code></pre>
-<p><img src="erowid_files/figure-html/unnamed-chunk-6-1.png" width="672"></p>
+<p><img src="erowid_files/figure-html/unnamed-chunk-5-1.png" width="672"></p>
 </div>
 <div id="substances" class="section level2">
 <h2 class="hasAnchor"><html><body><a href="#substances" class="anchor"> </a></body></html>Substances</h2>
@@ -121,7 +113,7 @@
 <span class="st">    </span><span class="kw">scale_y_continuous</span>(<span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">800</span>), <span class="dt">expand =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)) +
 <span class="st">    </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">"Counts of substances"</span>, <span class="dt">x =</span> <span class="st">""</span>, <span class="dt">y =</span> <span class="st">""</span>,
          <span class="dt">subtitle =</span> <span class="st">"Substances with fewer than 100 reports excluded"</span>)</code></pre></div>
-<p><img src="erowid_files/figure-html/unnamed-chunk-7-1.png" width="672"></p>
+<p><img src="erowid_files/figure-html/unnamed-chunk-6-1.png" width="672"></p>
 <p>Let&rsquo;s also display a sample of the combinations:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">erowid %&gt;%<span class="st"> </span>
 <span class="st">    </span><span class="kw">filter</span>(<span class="kw">str_detect</span>(substance, <span class="st">"&amp;"</span>)) %&gt;%
@@ -135,25 +127,33 @@
 <span class="st">    </span><span class="kw">scale_y_continuous</span>(<span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">250</span>), <span class="dt">expand =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)) +
 <span class="st">    </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">"Counts of substance combinations"</span>, <span class="dt">x =</span> <span class="st">""</span>, <span class="dt">y =</span> <span class="st">""</span>,
          <span class="dt">subtitle =</span> <span class="st">"Combinations with fewer than 15 reports excluded"</span>)</code></pre></div>
-<p><img src="erowid_files/figure-html/unnamed-chunk-8-1.png" width="672"></p>
+<p><img src="erowid_files/figure-html/unnamed-chunk-7-1.png" width="672"></p>
 </div>
 </div>
 <div id="reports" class="section level1">
 <h1 class="hasAnchor"><html><body><a href="#reports" class="anchor"> </a></body></html>Reports</h1>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">9</span>)
-erowid %&gt;%
-<span class="st">    </span><span class="kw">filter</span>(rating ==<span class="st"> "Very Highly Recommended"</span>, substance ==<span class="st"> "DMT"</span>) %&gt;%
-<span class="st">    </span><span class="kw">sample_n</span>(<span class="dv">1</span>) %&gt;%
-<span class="st">    </span><span class="kw">select</span>(text) %&gt;%<span class="st"> </span>
-<span class="st">    </span><span class="kw">as.character</span>() %&gt;%<span class="st"> </span>
-<span class="st">    </span><span class="kw">gsub</span>(<span class="st">".*sense of strength going in.|The question of intentionality.*"</span>, 
-         <span class="st">""</span>, .) %&gt;%<span class="st"> </span>
-<span class="st">    </span><span class="kw">cat</span>()</code></pre></div>
-<pre><code>## 
-## 
-## The heat melted the light yellow tinted crystals into a colourless pool which gathered in the bottom of the bulb. I watched white vapour uncoiling around the glass as the bulb became opaque. I drew slowly one long potent lungful and as I did so the vapour billowed more furiously. My tongue and lips numbed and my respiratory plumbing stung a little as I filled up. Eyes opened I placed the still billowing bulb down on a cold hob and turned the heat off. As I did this the room tinted yellow sepia, and I shut my eyes looking for a slide show. I was immediately disappointed. Just the womblike state with some extra patterning, but then the warm crescendo of buzzing both audible and physical spread through my neck and shoulders, followed by a very slight crack or snap from somewhere in my auditory canal. 
-## 
-## For a short while I was not strictly local. I dont remember events as such, just a sensation of being somewhere in between my kitchen and the dreamworld. Then this absence of self was burst by a small patch of vivid vision. Like the view through a tiny hole in the wall of a darkened room out on to the scene on a bright summer day. I thought I saw a snippet of rows of parked cars, like the US guzzlers of the 50s with their chromed wings, or maybe it was an orderly residential scene. I gasped involuntarily, startled by the many implications of this vision. The stylistic appearance of the scenes were partly culturally familiar, and at the same time slightly skewed. I was startled out of phase with the vision, but I was exhilarated and back in the afterglow where I began giving praise to the universe for what I could only formulate as the privelege of what I had seen.</code></pre>
+<p>For example, let&rsquo;s show the shortest report whose rating is &ldquo;Highly Recommended&rdquo;:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">erowid %&gt;%
+<span class="st">    </span><span class="kw">filter</span>(rating ==<span class="st"> "Highly Recommended"</span>) %&gt;%
+<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">n =</span> <span class="kw">nchar</span>(text)) %&gt;%
+<span class="st">    </span><span class="kw">arrange</span>(n) %&gt;%<span class="st"> </span>
+<span class="st">    </span>.[<span class="dv">1</span>,] %&gt;%
+<span class="st">    </span><span class="kw">select</span>(text) %&gt;%
+<span class="st">    </span><span class="kw">as.character</span>() %&gt;%
+<span class="st">    </span><span class="kw">cat</span>() </code></pre></div>
+<pre><code>
+
+I took LSD at least 100 times between 1968-1972.  Generally I approached it as a scientific experiment rather than a 'party drug'. 
+
+Thirty years later, those experiences stand out as some of the most remarkable of my life, although I am convinced that the benefits are NOT cumulative.  That is, I probably derived no more benefit from doing it 100 times than if I had only done it 5 times.  Perhaps even once was enough.
+
+I was always left with the nagging feeling that I had come very close to grasping some ultimate truth, but I was never quite satisfied that I had really gotten there.  Hence the need to go back to it over and over again.
+
+Aside from discovering (or not) any ultimate truths, I certainly became aware of, and awed by, the incredibly intricate workings of the mind.  It was truly fascinating to watch my mind working on many levels at the same time, creating all sorts of curious realities and unusual interpretations.  
+
+And therein lies the sleeping tiger of LSD.  New interpretations of reality come flying from every direction, and not all of them are warm and cozy.  When the world of all possibilities is unleashed it can get extremely frightening.  
+
+So even though I would make careful preparations to ensure positive LSD experiences (and in fact they WERE positive for the most part), there were more than a few times that it became paralyzingly clear that I was not in control of anything that was happening.  In those situations one hopes to just 'go with the flow', but that can be easier said than done.</code></pre>
 </div>
 <div id="further-reading" class="section level1">
 <h1 class="hasAnchor"><html><body><a href="#further-reading" class="anchor"> </a></body></html>Further Reading</h1>

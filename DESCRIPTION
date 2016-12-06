@@ -1,7 +1,8 @@
 Package: tmasc
 Type: Package
 Title: Text Mining Altered States of Consciousness
-Version: 0.2.2
+Version: 0.2.5
+Date: 2016-12-06
 Authors@R: person("Matti", "Vuorre", email = "mv2521@columbia.edu",
                   role = c("aut", "cre"))
 Maintainer: Matti Vuorre <mv2521@columbia.edu>
