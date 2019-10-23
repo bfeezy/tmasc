@@ -24,7 +24,7 @@ The package is not available on CRAN, but can be easily installed from GitHub, u
 
 ```{r, eval = F}
 # install.packages(devtools)  # Install if required
-devtools::install_github("mvuorre/erowid")
+devtools::install_github("mvuorre/tmasc")
 ```
 
 # Usage
@@ -34,7 +34,6 @@ The package can then be loaded, and the contained data sets processed with famil
 ```{r}
 library(tmasc)
 library(tidyverse)
-library(stringr)
 ```
 
 Please see the [package's website](https://mvuorre.github.io/tmasc) for more information.
