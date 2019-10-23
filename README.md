@@ -14,7 +14,7 @@ The package is not available on CRAN, but can be easily installed from GitHub, u
 
 ``` r
 # install.packages(devtools)  # Install if required
-devtools::install_github("mvuorre/erowid")
+devtools::install_github("mvuorre/tmasc")
 ```
 
 Usage
